@@ -7,14 +7,58 @@ begin_2:
 print_loop2:
     lodsb
     cmp al, 0
-    je stop
+    je after_print
     mov ah, 0x0E
     int 0x10
     jmp print_loop2
 
-stop:
-    cli
-    hlt
-    jmp $
+after_print:
+    ; --- accendi la A20 line ---
+    in al, 0x92
+    or al, 2
+    out 0x92, al
+
+    ; --- carica la GDT ---
+    lgdt [gdt_descriptor]
+
+    ; --- accendi il bit Protected Mode in CR0 ---
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
+
+    ; --- salto lungo: forza il refresh, usa il segmento codice della GDT ---
+    jmp 0x08:protected_mode_start
+
+gdt_start:
+gdt_null:
+    dq 0x0000000000000000
+gdt_code:
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 10011010b
+    db 11001111b
+    db 0x00
+gdt_data:
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 10010010b
+    db 11001111b
+    db 0x00
+gdt_end:
+
+gdt_descriptor:
+    dw gdt_end - gdt_start - 1
+    dd gdt_start
 
 msg2 db 'Stage2 loaded!', 0
+
+[BITS 32]
+protected_mode_start:
+    mov ax, 0x10
+    mov ds, ax
+    mov ss, ax
+
+    cli
+    hlt
