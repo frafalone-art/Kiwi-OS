@@ -60,5 +60,22 @@ protected_mode_start:
     mov ds, ax
     mov ss, ax
 
+    mov esi, pm_msg
+    mov edi, 0xB8000
+
+pm_print_loop:
+    lodsb
+    cmp al, 0
+    je pm_stop
+    mov [edi], al
+    mov byte [edi+1], 0x0F
+    add edi, 2
+    jmp pm_print_loop
+
+pm_stop:
+    cli
+    hlt
+
+pm_msg db 'Protected Mode activated', 0
     cli
     hlt
