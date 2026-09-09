@@ -60,8 +60,15 @@ protected_mode_start:
     mov ds, ax
     mov ss, ax
 
-    mov esi, pm_msg
+clear_screen:
     mov edi, 0xB8000
+    mov ecx, 2000  ; 80 * 25 caselle
+
+clear_loop:
+    mov byte [edi], ' '   ; spazio vuoto
+    mov byte [edi+1], 0x0F
+    add edi, 2
+    loop clear_loop
 
 pm_print_loop:
     lodsb
@@ -77,5 +84,4 @@ pm_stop:
     hlt
 
 pm_msg db 'Protected Mode activated', 0
-    cli
-    hlt
+  
