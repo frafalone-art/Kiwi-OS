@@ -13,6 +13,8 @@ print_loop2:
     jmp print_loop2
 
 after_print:
+    cli                     ; disattiva le interrupt prima di A20/GDT/CR0
+
     ; --- accendi la A20 line ---
     in al, 0x92
     or al, 2
@@ -59,16 +61,20 @@ protected_mode_start:
     mov ax, 0x10
     mov ds, ax
     mov ss, ax
+    mov esp, 0x90000        ; stack valido, area RAM bassa libera
 
 clear_screen:
     mov edi, 0xB8000
-    mov ecx, 2000  ; 80 * 25 caselle
+    mov ecx, 2000            ; 80 * 25 caselle
 
 clear_loop:
-    mov byte [edi], ' '   ; spazio vuoto
+    mov byte [edi], ' '       ; spazio vuoto
     mov byte [edi+1], 0x0F
     add edi, 2
     loop clear_loop
+
+    mov esi, pm_msg           ; ESI punta all'inizio del messaggio
+    mov edi, 0xB8000           ; EDI riportato all'inizio schermo
 
 pm_print_loop:
     lodsb
@@ -84,4 +90,3 @@ pm_stop:
     hlt
 
 pm_msg db 'Protected Mode activated', 0
-  
