@@ -69,7 +69,7 @@ clear_screen:
 
 clear_loop:
     mov byte [edi], ' '       ; spazio vuoto
-    mov byte [edi+1], 0x0F
+    mov byte [edi+1], 0x0A
     add edi, 2
     loop clear_loop
 
