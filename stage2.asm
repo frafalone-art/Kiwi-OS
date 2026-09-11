@@ -69,7 +69,7 @@ clear_screen:
 
 clear_loop:
     mov byte [edi], ' '       ; spazio vuoto
-    mov byte [edi+1], 0x0A
+    mov byte [edi+1], 0x0F
     add edi, 2
     loop clear_loop
 
@@ -81,7 +81,7 @@ pm_print_loop:
     cmp al, 0
     je pm_stop
     mov [edi], al
-    mov byte [edi+1], 0x0F
+    mov byte [edi+1], 0x0A
     add edi, 2
     jmp pm_print_loop
 
