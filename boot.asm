@@ -5,12 +5,11 @@ start:
     mov si, greeting
     call print_string
 
-    ; --- prima ES:BX (usa AX temporaneamente) ---
+    ; --- carica stage2 (settore 2) in RAM a 0x1000 ---
     mov ax, 0
     mov es, ax
     mov bx, 0x1000
 
-    ; --- poi i parametri di lettura (AH/AL per ultimi) ---
     mov ah, 0x02
     mov al, 1
     mov ch, 0
@@ -20,8 +19,22 @@ start:
     int 0x13
     jc disk_error
 
+    ; --- carica kernel (settore 3) in RAM a 0x10000 ---
+    mov ax, 0x1000
+    mov es, ax
+    mov bx, 0x0000
+
+    mov ah, 0x02
+    mov al, 1
+    mov ch, 0
+    mov cl, 3
+    mov dh, 0
+
+    int 0x13
+    jc disk_error
+
     jmp 0x1000
-    
+
 print_string:
     lodsb
     cmp al, 0
